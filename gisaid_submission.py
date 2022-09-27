@@ -68,6 +68,7 @@ def run_uploader(unique_name, config, test):
     while attempts < 3 and complete == False:
         proc = subprocess.run(["python", os.path.join(os.path.dirname(os.path.abspath(__file__)), "gisaid_uploader.py"), "--debug", 
                                "-l", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + ".log"),
+                               "--authfile", os.path.abspath(config_dict["gisaid"]["authfile_fp"]), 
                                "COV", "upload", #can't use spaces in this argument list; otherwise an NoneType error will occur
                                "--fasta", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + "_gisaid.fsa"),
                                "--csv", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + "_gisaid.csv"),

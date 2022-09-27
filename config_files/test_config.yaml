@@ -113,5 +113,6 @@ gisaid:
   cid: TEST-EA76875B00C3
   username: ''
   password: ''
+  authfile_fp:
   type: betacoronavirus
   Update_sequences_on_Genbank_auto_removal: False
