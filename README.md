@@ -1,4 +1,7 @@
 # SeqSender
+## Disclaimer
+This repo has been forked from CDC's original [seqsender repo](https://github.com/CDCgov/seqsender) and adjusted for PHL2's specific purposes
+
 ## Public Database Submission Pipeline
 Version: 0.1 (Beta)
 
@@ -18,7 +21,7 @@ SeqSender is used to generate the files necessary to upload via FTP to NCBI's da
 1. Clone files to working space and setup Python environment. 
     - We recommend [Miniconda](https://docs.conda.io/en/latest/miniconda.html#:~:text=Miniconda%20is%20a%20free%20minimal,zlib%20and%20a%20few%20others)
     - ```bash
-        conda env create -f config_files/conda_environment.yaml
+        conda env create -f config_files/seqsender_mini_conda_env.yaml
         conda activate seqsender
 2. Create a folder where you would like the program to generate the output to.
 3. Submission files will be created and processed here.

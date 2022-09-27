@@ -16,6 +16,8 @@ import pandas as pd
 import yaml
 from Bio import SeqIO
 import xml.etree.ElementTree as ET
+import socks
+import socket
 
 config_dict = dict()
 version = "0.1 (Beta)"
@@ -67,7 +69,7 @@ def update_csv(unique_name,config,type,Genbank_submission_id=None,Genbank_submis
     #Check if row exists in log to update instead of write new
     if df['name'].str.contains(unique_name).any():
         df_partial = df.loc[df['name'] == unique_name]
-        df.loc[df_partial.index.values, 'update_date'] = curr_time.strftime("%-m/%-d/%Y")
+        df.loc[df_partial.index.values, 'update_date'] = curr_time.strftime("%m/%d/%Y")
         df.loc[df_partial.index.values, 'directory'] = os.path.join(config_dict["general"]["submission_directory"], unique_name)
         df.loc[df_partial.index.values, 'config'] = config
         df.loc[df_partial.index.values, 'type'] = type
@@ -97,7 +99,7 @@ def update_csv(unique_name,config,type,Genbank_submission_id=None,Genbank_submis
             df.loc[df_partial.index.values, 'GISAID_failed_total'] = GISAID_failed_total
     else:
         new_entry = {'name':unique_name,
-                    'update_date':curr_time.strftime("%-m/%-d/%Y"),
+                    'update_date':curr_time.strftime("%m/%d/%Y"),
                     'Genbank_submission_id':Genbank_submission_id,
                     'Genbank_submission_date':Genbank_submission_date,
                     'Genbank_status':Genbank_status,
@@ -340,7 +342,7 @@ def submit_genbank(unique_name, config, test, overwrite):
         test_type = True
     genbank_submission.submit_ftp(unique_name=unique_name, config=config, test=test_type, overwrite=overwrite)
     curr_time = datetime.now()
-    update_csv(unique_name=unique_name, config=config, type=test, Genbank_submission_id="submitted", Genbank_submission_date=curr_time.strftime("%-m/%-d/%Y"), Genbank_status="submitted")
+    update_csv(unique_name=unique_name, config=config, type=test, Genbank_submission_id="submitted", Genbank_submission_date=curr_time.strftime("%m/%d/%Y"), Genbank_status="submitted")
 
 def submit_gisaid(unique_name, config, test):
     initialize_global_variables(config)
@@ -353,7 +355,7 @@ def submit_gisaid(unique_name, config, test):
     gisaid_submission.run_uploader(unique_name=unique_name, config=config, test=test_type)
     submitted, failed = read_log(unique_name, os.path.join(config_dict["general"]["submission_directory"], unique_name, "gisaid", unique_name + ".log"))
     curr_time = datetime.now()
-    update_csv(unique_name=unique_name, config=config, type=test, GISAID_submission_date=curr_time.strftime("%-m/%-d/%Y"),GISAID_submitted_total=submitted,GISAID_failed_total=failed)
+    update_csv(unique_name=unique_name, config=config, type=test, GISAID_submission_date=curr_time.strftime("%m/%d/%Y"),GISAID_submitted_total=submitted,GISAID_failed_total=failed)
 
 #Read xml report and check status of report
 def genbank_process_report(unique_name):
@@ -450,11 +452,11 @@ def submit_biosample_sra(unique_name, config, test, ncbi_sub_type, overwrite):
     biosample_sra_submission.submit_ftp(unique_name=unique_name, ncbi_sub_type=ncbi_sub_type, config=config, test=test_type, overwrite=overwrite)
     curr_time = datetime.now()
     if ncbi_sub_type == "biosample_sra":
-        update_csv(unique_name=unique_name,config=config,type=test,Biosample_submission_id="submitted",Biosample_status="submitted",Biosample_submission_date=curr_time.strftime("%-m/%-d/%Y"),SRA_submission_id="submitted",SRA_status="submitted",SRA_submission_date=curr_time.strftime("%-m/%-d/%Y"))
+        update_csv(unique_name=unique_name,config=config,type=test,Biosample_submission_id="submitted",Biosample_status="submitted",Biosample_submission_date=curr_time.strftime("%m/%d/%Y"),SRA_submission_id="submitted",SRA_status="submitted",SRA_submission_date=curr_time.strftime("%m/%d/%Y"))
     elif ncbi_sub_type == "biosample":
-        update_csv(unique_name=unique_name,config=config,type=test,Biosample_submission_id="submitted",Biosample_status="submitted",Biosample_submission_date=curr_time.strftime("%-m/%-d/%Y"))
+        update_csv(unique_name=unique_name,config=config,type=test,Biosample_submission_id="submitted",Biosample_status="submitted",Biosample_submission_date=curr_time.strftime("%m/%d/%Y"))
     elif ncbi_sub_type == "sra":
-        update_csv(unique_name=unique_name,config=config,type=test,SRA_submission_id="submitted",SRA_status="submitted",SRA_submission_date=curr_time.strftime("%-m/%-d/%Y"))
+        update_csv(unique_name=unique_name,config=config,type=test,SRA_submission_id="submitted",SRA_status="submitted",SRA_submission_date=curr_time.strftime("%m/%d/%Y"))
 
 #Start submission into automated pipeline
 def start_submission(unique_name, config, test, overwrite):
@@ -518,6 +520,12 @@ def main():
         description='Command line upload script.')
     subparsers = parser.add_subparsers(dest='command')
 
+    parser.add_argument('--proxy',
+        help='Use a proxy',
+        required=False,
+        default=False,
+        action="store_true")
+        
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser_prep = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument('--unique_name',
@@ -586,6 +594,10 @@ def main():
         description='Version info.')
 
     args = parser.parse_args()
+
+    if args.proxy:
+        socks.set_default_proxy(socks.HTTP, 'proxy.phila.gov', 8080)
+        socket.socket = socks.socksocket
 
     if args.command == 'submit':
         submission_preparation.process_submission(args.unique_name, args.fasta, args.metadata, os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_files", args.config))

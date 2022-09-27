@@ -66,13 +66,14 @@ def run_uploader(unique_name, config, test):
     attempts = 1
     complete = False
     while attempts < 3 and complete == False:
-        proc = subprocess.run("python " + os.path.join(os.path.dirname(os.path.abspath(__file__)), "gisaid_uploader.py") + " --debug -l " +
-            os.path.join(config_dict["general"]["submission_directory"], unique_name, "gisaid", unique_name + ".log") + " COV upload --fasta " +
-            os.path.join(config_dict["general"]["submission_directory"], unique_name, "gisaid", unique_name + "_gisaid.fsa") + " --csv " +
-            os.path.join(config_dict["general"]["submission_directory"], unique_name, "gisaid", unique_name + "_gisaid.csv") + " --failedout " +
-            os.path.join(config_dict["general"]["submission_directory"], unique_name, "gisaid", unique_name + "_failed_meta.csv"),
-            env = os.environ.copy(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
-        #print(proc.args)
+        proc = subprocess.run(["python", os.path.join(os.path.dirname(os.path.abspath(__file__)), "gisaid_uploader.py"), "--debug", 
+                               "-l", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + ".log"),
+                               "COV", "upload", #can't use spaces in this argument list; otherwise an NoneType error will occur
+                               "--fasta", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + "_gisaid.fsa"),
+                               "--csv", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + "_gisaid.csv"),
+                               "--failedout", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + "_failed_meta.csv")],
+                               env = os.environ.copy(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
+        #print(proc)
         if proc.returncode != 0:
             print(proc.stdout)
             print(proc.stderr)
