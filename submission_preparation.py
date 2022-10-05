@@ -253,7 +253,7 @@ def gisaid_write(unique_name, main_df):
     gisaid_df["submitter"] = config_dict["gisaid"]["username"]
     gisaid_df["fn"] = unique_name + "_gisaid.fsa"
     gisaid_df["covv_type"] = config_dict["gisaid"]["type"]
-    gisaid_df["covv_subm_lab"] = config_dict["ncbi"]["citation_address"]["affil"] + " " + config_dict["ncbi"]["citation_address"]["div"]
+    gisaid_df["covv_subm_lab"] = config_dict["ncbi"]["citation_address"]["affil"] + ", " + config_dict["ncbi"]["citation_address"]["div"]
     gisaid_df["covv_subm_lab_addr"] = config_dict["ncbi"]["citation_address"]["street"] + ", " + config_dict["ncbi"]["citation_address"]["city"] + ", " + config_dict["ncbi"]["citation_address"]["sub"] + ", " + config_dict["ncbi"]["citation_address"]["country"] + config_dict["ncbi"]["citation_address"]["postal-code"]
     author_list = ""
     for name in config_dict["general"]["authorset"]:
