@@ -5,6 +5,8 @@ import os
 import sys
 import pandas as pd
 import yaml
+import socks
+import socket
 
 pd.set_option("display.max_columns", None)
 pd.set_option("max_colwidth", None)
@@ -24,11 +26,17 @@ def initialize_global_variables(config):
             print("Config Error: Config file structure is incorrect.", file=sys.stderr)
             sys.exit(1)
 
-def submit_ftp(unique_name, ncbi_sub_type, config, test, overwrite):
+def submit_ftp(unique_name, ncbi_sub_type, config, test, overwrite, use_proxy):
     initialize_global_variables(config)
     if not os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "submit.ready")):
         open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "submit.ready"), 'w+').close()
     try:
+        if use_proxy:
+            #get text after https
+            windows_env_var = os.getenv('https_proxy').split('//')[1]
+            proxy_split = windows_env_var.replace('@', ':').split(':')
+            socks.set_default_proxy(socks.HTTP, proxy_split[2], int(proxy_split[3]), proxy_split[0], proxy_split[1])
+            socket.socket = socks.socksocket
         #Login to ftp
         ftp = ftplib.FTP(config_dict["ncbi"]["hostname"])
         ftp.login(user=config_dict["ncbi"]["username"], passwd = config_dict["ncbi"]["password"])

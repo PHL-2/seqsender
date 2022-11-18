@@ -54,7 +54,7 @@ def check_authentication_date():
         print("Authenticated")
 
 #Run gisaid upload script and saves output to submission location
-def run_uploader(unique_name, config, test, use_proxy):
+def run_uploader(unique_name, config, test):
     initialize_global_variables(config)
     if test == True:
         print("Performing test submission to CID: " + cid)
@@ -68,9 +68,7 @@ def run_uploader(unique_name, config, test, use_proxy):
     while attempts < 3 and complete == False:
         proc = subprocess.run(["python", os.path.join(os.path.dirname(os.path.abspath(__file__)), "gisaid_uploader.py"), "--debug", 
                                "-l", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + ".log"),
-                               #if use_proxy variable is True, add the proxy flag and settings in this arguments list
-                               *["--proxy"]*use_proxy, *[os.getenv('https_proxy')]*use_proxy,
-                               "--authfile", os.path.abspath(config_dict["gisaid"]["authfile_fp"]),
+                               "--authfile", os.path.abspath(config_dict["gisaid"]["authfile_fp"]), 
                                "COV", "upload", #can't use spaces in this argument list; otherwise an NoneType error will occur
                                "--fasta", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + "_gisaid.fsa"),
                                "--csv", os.path.join(os.path.abspath(config_dict["general"]["submission_directory"]), unique_name, "gisaid", unique_name + "_gisaid.csv"),

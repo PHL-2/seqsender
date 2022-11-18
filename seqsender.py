@@ -16,11 +16,10 @@ import pandas as pd
 import yaml
 from Bio import SeqIO
 import xml.etree.ElementTree as ET
-import socks
-import socket
 
 config_dict = dict()
 version = "0.1 (Beta)"
+global_proxy = False
 
 #Initialize config file
 def initialize_global_variables(config):
@@ -340,7 +339,7 @@ def submit_genbank(unique_name, config, test, overwrite):
         test_type = False
     else:
         test_type = True
-    genbank_submission.submit_ftp(unique_name=unique_name, config=config, test=test_type, overwrite=overwrite)
+    genbank_submission.submit_ftp(unique_name=unique_name, config=config, test=test_type, overwrite=overwrite, use_proxy = global_proxy)
     curr_time = datetime.now()
     update_csv(unique_name=unique_name, config=config, type=test, Genbank_submission_id="submitted", Genbank_submission_date=curr_time.strftime("%m/%d/%Y"), Genbank_status="submitted")
 
@@ -352,7 +351,7 @@ def submit_gisaid(unique_name, config, test):
         test_type = False
     else:
         test_type = True
-    gisaid_submission.run_uploader(unique_name=unique_name, config=config, test=test_type)
+    gisaid_submission.run_uploader(unique_name=unique_name, config=config, test=test_type, use_proxy = global_proxy)
     submitted, failed = read_log(unique_name, os.path.join(config_dict["general"]["submission_directory"], unique_name, "gisaid", unique_name + ".log"))
     curr_time = datetime.now()
     update_csv(unique_name=unique_name, config=config, type=test, GISAID_submission_date=curr_time.strftime("%m/%d/%Y"),GISAID_submitted_total=submitted,GISAID_failed_total=failed)
@@ -449,7 +448,7 @@ def submit_biosample_sra(unique_name, config, test, ncbi_sub_type, overwrite):
         test_type = False
     else:
         test_type = True
-    biosample_sra_submission.submit_ftp(unique_name=unique_name, ncbi_sub_type=ncbi_sub_type, config=config, test=test_type, overwrite=overwrite)
+    biosample_sra_submission.submit_ftp(unique_name=unique_name, ncbi_sub_type=ncbi_sub_type, config=config, test=test_type, overwrite=overwrite, use_proxy = global_proxy)
     curr_time = datetime.now()
     if ncbi_sub_type == "biosample_sra":
         update_csv(unique_name=unique_name,config=config,type=test,Biosample_submission_id="submitted",Biosample_status="submitted",Biosample_submission_date=curr_time.strftime("%m/%d/%Y"),SRA_submission_id="submitted",SRA_status="submitted",SRA_submission_date=curr_time.strftime("%m/%d/%Y"))
@@ -596,8 +595,8 @@ def main():
     args = parser.parse_args()
 
     if args.proxy:
-        socks.set_default_proxy(socks.HTTP, 'proxy.phila.gov', 8080)
-        socket.socket = socks.socksocket
+        global global_proxy
+        global_proxy = True
 
     if args.command == 'submit':
         submission_preparation.process_submission(args.unique_name, args.fasta, args.metadata, os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_files", args.config))
