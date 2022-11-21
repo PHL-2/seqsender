@@ -9,8 +9,6 @@ import pandas as pd
 import glob
 import copy
 import csv
-import socks
-import socket
 
 config_dict = dict()
 
@@ -33,12 +31,6 @@ def submit_ftp(unique_name, config, test, overwrite, use_proxy):
         open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "submit.ready"), 'w+').close()
     create_zip(unique_name)
     try:
-        if use_proxy:
-            #get text after https
-            windows_env_var = os.getenv('https_proxy').split('//')[1]
-            proxy_split = windows_env_var.replace('@', ':').split(':')
-            socks.set_default_proxy(socks.HTTP, proxy_split[2], int(proxy_split[3]), proxy_split[0], proxy_split[1])
-            socket.socket = socks.socksocket
         #Login to ftp
         ftp = ftplib.FTP(config_dict["ncbi"]["hostname"])
         ftp.login(user=config_dict["ncbi"]["username"], passwd = config_dict["ncbi"]["password"])

@@ -16,6 +16,8 @@ import pandas as pd
 import yaml
 from Bio import SeqIO
 import xml.etree.ElementTree as ET
+import socks
+import socket
 
 config_dict = dict()
 version = "0.1 (Beta)"
@@ -597,6 +599,9 @@ def main():
     if args.proxy:
         global global_proxy
         global_proxy = True
+        proxy_split = os.getenv('https_proxy').split(':')
+        socks.set_default_proxy(socks.HTTP, proxy_split[0], int(proxy_split[1]))
+        socket.socket = socks.socksocket
 
     if args.command == 'submit':
         submission_preparation.process_submission(args.unique_name, args.fasta, args.metadata, os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_files", args.config))
