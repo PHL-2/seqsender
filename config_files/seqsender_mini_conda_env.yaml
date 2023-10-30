@@ -7,9 +7,9 @@ dependencies:
   - pandas=1.1.5
   - pip=21.2.4=pyhd8ed1ab_0
   - pysocks
-  - python=3.6.15
+  - python=3.8
   - pyyaml=5.4.1
-  - requests=2.12.5=py36_0
+  - requests=2.31=py38hca03da5_0
   - yaml=0.2.5
   - pip:
     - biopython==1.79
